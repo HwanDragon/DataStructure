@@ -1,0 +1,113 @@
+#include <iostream>
+#include <vector>
+
+#define MAX_NODE_COUNT 10
+
+using namespace std;
+
+// 노드정보
+typedef struct Node
+{
+	int data;	// 저장할 데이터
+	bool visited;	// 방문여부
+};
+
+typedef struct Graph
+{
+	int nodeCount;	// 전체 노드 개수
+	Node* nodes;	// 전체 노드 저장
+};
+vector<int> adj[MAX_NODE_COUNT];	// 자식 노드 정보 기록
+
+Graph* makeGraph(int nodeCount)
+{
+	int i = 0;
+	Graph* graph = (Graph*)malloc(sizeof(Graph));
+	graph->nodeCount = nodeCount;
+
+	// 노드 생성
+	graph->nodes = (Node*)malloc(sizeof(Node) * nodeCount);
+	for (int i = 0; i < nodeCount; i++)
+	{
+		graph->nodes[i].data = i;
+		graph->nodes[i].visited = false;
+	}
+
+	return graph;
+}
+
+void printGraphAdj(Graph* graph)
+{
+	int nodeCount = graph->nodeCount;
+
+	cout << "Node Data \n";
+	for (int i = 0; i < nodeCount; i++)
+	{
+		cout << graph->nodes[i].data << " ";
+	}
+	cout << "\n\n";
+
+	cout << "Graph adj \n";
+	for (int i = 0; i < nodeCount; i++)
+	{
+		cout << i << " -> ";
+		for (int j = 0; j < adj[i].size(); j++)
+		{
+			cout <<  adj[i][j] << " ";
+		}
+		cout << "\n";
+	}
+
+	cout << "\n";
+}
+
+void addEdge(Graph* graph, int parentNodeIndex, int childNodeIndex)
+{
+	adj[parentNodeIndex].push_back(childNodeIndex);
+	adj[childNodeIndex].push_back(parentNodeIndex);
+}
+
+void dfs(Graph* graph, int nodeIndex)
+{
+	graph->nodes[nodeIndex].visited = true;
+	cout << graph->nodes[nodeIndex].data << " ";
+	for (int i = 0; i < adj[nodeIndex].size(); i++)
+	{
+		int child = adj[nodeIndex].at(i);
+		if (graph->nodes[child].visited == false)
+			dfs(graph, adj[nodeIndex][i]);
+	}
+}
+
+//    0
+//   /
+//  1 -- 3    7 -- 9
+//  |  / | \ /
+//  | /  |  5
+//  2 -- 4   \
+//            6 -- 8
+//
+
+
+int main()
+{
+	int nodeCount = MAX_NODE_COUNT;
+	Graph* g = makeGraph(nodeCount);
+	addEdge(g, 0, 1);
+	addEdge(g, 1, 2);
+	addEdge(g, 1, 3);
+	addEdge(g, 2, 3);
+	addEdge(g, 2, 4);
+	addEdge(g, 3, 4);
+	addEdge(g, 3, 5);
+	addEdge(g, 5, 6);
+	addEdge(g, 6, 8);
+	addEdge(g, 5, 7);
+	addEdge(g, 7, 9);
+
+	printGraphAdj(g);
+
+	dfs(g, 0);	// 0번 노드에서 dfs 시작
+
+	return 0;
+}

@@ -1,0 +1,115 @@
+#include <iostream>
+
+using namespace std;
+
+typedef struct Node
+{
+	int data;
+	bool visited;
+};
+
+typedef struct Tree
+{
+	int nodeCount;	// 전체 노드 개수
+	bool **matrix;	// 자식 노드 정보 기록
+	Node *nodes;	// 전체 노드 저장
+};
+
+
+Tree* makeTree(int nodeCount)
+{
+	int i = 0;
+	Tree* tree = (Tree*)malloc(sizeof(Tree));
+	tree->matrix = (bool**)malloc(sizeof(bool*) * nodeCount);
+	for (int i = 0; i < nodeCount; i++)
+	{
+		tree->matrix[i] = (bool*)malloc(sizeof(bool) * nodeCount);
+	}
+	tree->nodeCount = nodeCount;
+
+	// 노드 생성
+	tree->nodes = (Node*)malloc(sizeof(Node) * nodeCount);
+	for (int i = 0; i < nodeCount; i++)
+	{
+		tree->nodes[i].data = i;
+	}
+
+	// 0으로 초기화
+	for (int i = 0; i < nodeCount; i++)
+	{
+		for (int j = 0; j < nodeCount; j++)
+		{
+			tree->matrix[i][j] = 0;
+		}
+	}
+
+	return tree;
+}
+
+void printTreeMatrix(Tree* tree)
+{
+	int nodeCount = tree->nodeCount;
+
+	cout << "Node Data \n";
+	for (int i = 0; i < nodeCount; i++)
+	{
+		cout << tree->nodes[i].data << " ";
+	}
+	cout << "\n\n";
+
+	cout << "Tree Matrix \n";
+	for (int i = 0; i < nodeCount; i++)
+	{
+		for (int j = 0; j < nodeCount; j++)
+		{
+			cout << tree->matrix[i][j] <<" ";
+		}
+		cout << "\n";
+	}
+
+	cout << "\n";
+}
+
+void addEdge(Tree *tree, int parentNodeIndex, int childNodeIndex)
+{
+	tree->matrix[parentNodeIndex][childNodeIndex] = true;
+}
+
+void dfs(Tree *tree, int nodeIndex)
+{
+	for (int i = 0; i < tree->nodeCount; i++)
+	{
+		if (tree->matrix[nodeIndex][i] == true)
+		{
+			dfs(tree, i);
+		}
+	}
+	cout << tree->nodes[nodeIndex].data << " ";
+}
+
+/*
+*				0
+*			   / \
+*   		  /   \
+*            1     2
+*           / \   / \
+*          3   4 5   6
+*/
+
+int main()
+{
+	int nodeCount = 8;
+	Tree *tree = makeTree(nodeCount);
+	addEdge(tree, 0, 1);
+	addEdge(tree, 0, 2);
+	addEdge(tree, 1, 3);
+	addEdge(tree, 1, 4);
+	addEdge(tree, 2, 5);
+	addEdge(tree, 2, 6);
+
+	printTreeMatrix(tree);
+
+	dfs(tree, 0);	// 0번 노드에서 dfs 시작
+
+	return 0;
+}
