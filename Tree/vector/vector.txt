@@ -37,13 +37,6 @@ void printTreeMatrix(Tree* tree)
 {
 	int nodeCount = tree->nodeCount;
 
-	cout << "Node Data \n";
-	for (int i = 0; i < nodeCount; i++)
-	{
-		cout << tree->nodes[i].data << " ";
-	}
-	cout << "\n\n";
-
 	cout << "Tree adj \n";
 	for (int i = 0; i < nodeCount; i++)
 	{
