@@ -1,107 +1,58 @@
+#include <iostream>
 
-#include <stdio.h>
-#include <stdlib.h>
-typedef struct NodeStruct
+using namespace std;
+
+typedef struct Node
 {
     int value;
-    struct Node* leftChild;
-    struct Node* rightChild;
-} Node;
+    Node* left;
+    Node* right;
+};
 
-typedef struct BinaryTreeStruct
+typedef struct Tree
 {
     Node* root;
-} BinaryTree;
+};
 
-Node* BST_insert(Node* root, int value)
+// 노드 생성
+Node* makeNode(Node *left, int data, Node *right)
 {
-    if (root == NULL)
-    {
-        root = (Node*)malloc(sizeof(Node));
-        root->leftChild = root->rightChild = NULL;
-        root->value = value;
-        return root;
-    }
-    else
-    {
-        if (root->value > value)
-            root->leftChild = BST_insert(root->leftChild, value);
-        else
-            root->rightChild = BST_insert(root->rightChild, value);
-    }
-    return root;
+    Node *node = (Node *)malloc(sizeof(Node));
+    node->value = data;
+    node->left = left;
+    node->right = right;
+
+    return node;
 }
 
-Node* findMinNode(Node* root)
-{
-    Node* tmp = root;
-    while (tmp->leftChild != NULL)
-        tmp = tmp->leftChild;
-    return tmp;
-}
-Node* BST_delete(Node* root, int value)
-{
-    Node* tNode = NULL;
-    if (root == NULL)
-        return NULL;
-
-    if (root->value > value)
-        root->leftChild = BST_delete(root->leftChild, value);
-    else if (root->value < value)
-        root->rightChild = BST_delete(root->rightChild, value);
-    else
-    {
-        // 자식 노드가 둘 다 있을 경우
-        if (root->rightChild != NULL && root->leftChild != NULL)
-        {
-            tNode = findMinNode(root->rightChild);
-            root->value = tNode->value;
-            root->rightChild = BST_delete(root->rightChild, tNode->value);
-        }
-        else
-        {
-            tNode = (root->leftChild == NULL) ? root->rightChild : root->leftChild;
-            free(root);
-            return tNode;
-        }
-    }
-
-    return root;
-}
-Node* BST_search(Node* root, int value)
-{
-    if (root == NULL)
-        return NULL;
-
-    if (root->value == value)
-        return root;
-    else if (root->value > value)
-        return BST_search(root->leftChild, value);
-    else
-        return BST_search(root->rightChild, value);
-}
-void BST_print(Node* root)
+// 중위 순회
+void inOrder(Node* root)
 {
     if (root == NULL)
         return;
 
-    printf("%d ", root->value);
-    BST_print(root->leftChild);
-    BST_print(root->rightChild);
+    inOrder(root->left);
+    cout << root->value << " ";
+    inOrder(root->right);
 }
 
+
+/*
+*           1
+*          / \
+          2   3
+         / \
+        4   5
+*/
 int main()
 {
-    BinaryTree *tree = (BinaryTree *)malloc(sizeof(BinaryTree) * 1);
-    tree->root = NULL;
-    tree->root = BST_insert(tree->root, 5);
-    tree->root = BST_insert(tree->root, 3);
-    tree->root = BST_insert(tree->root, 7);
-    tree->root = BST_insert(tree->root, 1);
-    tree->root = BST_insert(tree->root, 9);
-    tree->root = BST_insert(tree->root, 6);
+    Tree tree;
+    Node* n4 = makeNode(NULL, 4, NULL);
+    Node* n5 = makeNode(NULL, 5, NULL);
+    Node* n2 = makeNode(n4, 2, n5);
+    Node* n3 = makeNode(NULL, 3, NULL);
+    Node* n1 = makeNode(n2, 1, n3);
 
-    tree->root = BST_delete(tree->root, 7);
-
-    BST_print(tree->root);
+    tree.root = n1;
+    inOrder(tree.root);
 }
