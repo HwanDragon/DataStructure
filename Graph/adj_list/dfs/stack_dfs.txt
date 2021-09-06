@@ -12,7 +12,6 @@ using namespace std;
 typedef struct Node
 {
 	int data;	// 저장할 데이터
-	bool visited;	// 해당 노드 탐색여부 확인
 	vector<Node*> adj;	// 인접리스트
 };
 
@@ -21,22 +20,24 @@ typedef struct Graph
 	vector<Node*> nodes;
 };
 
+bool visited[MAX_NODE] = { 0, };	// 해당 노드 방문 여부 확인
+Graph g;	// 그래프
+
 // 노드 생성
-void makeNode(Graph *g, int count)
+void makeNode(int count)
 {
 	for (int i = 0; i < count; i++)
 	{
 		Node* n = new Node();
 		n->data = i;
-		n->visited = false;
-		g->nodes.push_back(n);
+		g.nodes.push_back(n);
 	}
 }
 
 // 노드간의 엣지 생성
-void addEdge(Graph* g, int n1, int n2) {
-	Node* first = g->nodes.at(n1);
-	Node* second = g->nodes.at(n2);
+void addEdge(int n1, int n2) {
+	Node* first = g.nodes.at(n1);
+	Node* second = g.nodes.at(n2);
 
 	first->adj.push_back(second);
 	second->adj.push_back(first);
@@ -48,22 +49,24 @@ void addEdge(Graph* g, int n1, int n2) {
 // bfs - queue 사용
 //---------------------------------------------
 // stack을 이용한 dfs 탐색 알고리즘
-void dfs(Node* n) {
-	stack<Node*> st;
-	st.push(n);	// 탐색을 시작할 노드를 stack에 추가
-	n->visited = true;	// 해당 노드를 방문한것으로 처리
+void dfs(int nodeIndex) {
+	stack<int> st;
+	st.push(nodeIndex);	// 탐색을 시작할 노드를 stack에 추가
+	visited[nodeIndex] = true;	// 해당 노드를 방문한것으로 처리
 
 	while (st.empty() == false) {
-		Node* node = st.top();	// stack에서 노드를 하나 꺼냄
+		int currentNodeIndex = st.top();	// stack에서 노드를 하나 꺼냄
+		Node* node = g.nodes.at(currentNodeIndex);
 		st.pop();
 
 		// 꺼낸 노드의 자식 노드가 방문하지 않았으면 큐에 추가하고, 방문여부를 체크
 		for (int i = 0; i < node->adj.size(); i++) {
 			Node* adjNode = node->adj.at(i);
-			if (adjNode->visited == false)
+			int childIndex = find(g.nodes.begin(), g.nodes.end(), adjNode) - g.nodes.begin();
+			if (visited[childIndex] == false)
 			{
-				adjNode->visited = true;
-				st.push(adjNode);
+				visited[childIndex] = true;
+				st.push(childIndex);
 			}
 		}
 
@@ -82,22 +85,20 @@ int main()
 	//            6 -- 8
 	//
 
-	Graph g;
-	makeNode(&g, MAX_NODE);
-	addEdge(&g, 0, 1);
-	addEdge(&g, 1, 2);
-	addEdge(&g, 1, 3);
-	addEdge(&g, 2, 3);
-	addEdge(&g, 2, 4);
-	addEdge(&g, 3, 4);
-	addEdge(&g, 3, 5);
-	addEdge(&g, 5, 7);
-	addEdge(&g, 5, 6);
-	addEdge(&g, 6, 8);
-	addEdge(&g, 7, 9);
+	makeNode(MAX_NODE);
+	addEdge(0, 1);
+	addEdge(1, 2);
+	addEdge(1, 3);
+	addEdge(2, 3);
+	addEdge(2, 4);
+	addEdge(3, 4);
+	addEdge(3, 5);
+	addEdge(5, 7);
+	addEdge(5, 6);
+	addEdge(6, 8);
+	addEdge(7, 9);
 
-	Node* searchNode = g.nodes.at(0);
-	dfs(searchNode);
+	dfs(0);
 
 
 	return 0;

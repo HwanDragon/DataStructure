@@ -9,7 +9,6 @@ using namespace std;
 typedef struct Node
 {
 	int data;	// 저장할 데이터
-	bool visited;	// 방문여부
 };
 
 typedef struct Graph
@@ -18,6 +17,7 @@ typedef struct Graph
 	Node* nodes;	// 전체 노드 저장
 };
 vector<int> adj[MAX_NODE_COUNT];	// 자식 노드 정보 기록
+bool *visited;	// 방문 여부를 저장할 배열
 
 Graph* makeGraph(int nodeCount)
 {
@@ -27,10 +27,11 @@ Graph* makeGraph(int nodeCount)
 
 	// 노드 생성
 	graph->nodes = (Node*)malloc(sizeof(Node) * nodeCount);
+	visited = (bool*)malloc(sizeof(bool) * nodeCount);
 	for (int i = 0; i < nodeCount; i++)
 	{
 		graph->nodes[i].data = i;
-		graph->nodes[i].visited = false;
+		visited[i] = false;
 	}
 
 	return graph;
@@ -40,20 +41,13 @@ void printGraphAdj(Graph* graph)
 {
 	int nodeCount = graph->nodeCount;
 
-	cout << "Node Data \n";
-	for (int i = 0; i < nodeCount; i++)
-	{
-		cout << graph->nodes[i].data << " ";
-	}
-	cout << "\n\n";
-
 	cout << "Graph adj \n";
 	for (int i = 0; i < nodeCount; i++)
 	{
 		cout << i << " -> ";
 		for (int j = 0; j < adj[i].size(); j++)
 		{
-			cout <<  adj[i][j] << " ";
+			cout << adj[i][j] << " ";
 		}
 		cout << "\n";
 	}
@@ -69,12 +63,12 @@ void addEdge(Graph* graph, int parentNodeIndex, int childNodeIndex)
 
 void dfs(Graph* graph, int nodeIndex)
 {
-	graph->nodes[nodeIndex].visited = true;
+	visited[nodeIndex] = true;
 	cout << graph->nodes[nodeIndex].data << " ";
 	for (int i = 0; i < adj[nodeIndex].size(); i++)
 	{
 		int child = adj[nodeIndex].at(i);
-		if (graph->nodes[child].visited == false)
+		if (visited[child] == false)
 			dfs(graph, adj[nodeIndex][i]);
 	}
 }

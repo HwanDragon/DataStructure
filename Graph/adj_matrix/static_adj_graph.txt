@@ -1,0 +1,100 @@
+#include <iostream>
+#define MAX_SIZE 10
+using namespace std;
+
+typedef struct Node
+{
+	int data;
+};
+
+typedef struct Graph
+{
+	int nodeCount;	// 전체 노드 개수
+	bool matrix[MAX_SIZE][MAX_SIZE];	// 자식 노드 정보 기록
+	Node nodes[MAX_SIZE];	// 전체 노드 저장
+};
+
+Graph g;
+bool visited[MAX_SIZE] = { 0, };
+
+void initGraph()
+{
+	g.nodeCount = MAX_SIZE;
+	for (int i = 0; i < MAX_SIZE; i++)
+	{
+		for (int j = 0; j < MAX_SIZE; j++)
+		{
+			g.matrix[i][j] = false;
+		}
+
+		g.nodes[i].data = i;
+	}
+}
+
+void printGraphMatrix()
+{
+	int nodeCount = g.nodeCount;
+
+	cout << "Graph Matrix \n";
+	for (int i = 0; i < nodeCount; i++)
+	{
+		for (int j = 0; j < nodeCount; j++)
+		{
+			cout << g.matrix[i][j] << " ";
+		}
+		cout << "\n";
+	}
+
+	cout << "\n";
+}
+
+void addEdge(int parentNodeIndex, int childNodeIndex)
+{
+	g.matrix[parentNodeIndex][childNodeIndex] = true;
+	g.matrix[childNodeIndex][parentNodeIndex] = true;
+}
+
+void dfs(int nodeIndex)
+{
+	visited[nodeIndex] = true;
+	cout << g.nodes[nodeIndex].data << " ";
+	for (int i = 0; i < g.nodeCount; i++)
+	{
+		if (g.matrix[nodeIndex][i] == true && visited[i] == false)
+		{
+			dfs(i);
+		}
+	}
+}
+
+//    0
+//   /
+//  1 -- 3    7 -- 9
+//  |  / | \ /
+//  | /  |  5
+//  2 -- 4   \
+//            6 -- 8
+//
+
+
+int main()
+{
+	initGraph();
+	addEdge(0, 1);
+	addEdge(1, 2);
+	addEdge(1, 3);
+	addEdge(2, 3);
+	addEdge(2, 4);
+	addEdge(3, 4);
+	addEdge(3, 5);
+	addEdge(5, 6);
+	addEdge(6, 8);
+	addEdge(5, 7);
+	addEdge(7, 9);
+
+	printGraphMatrix();
+
+	dfs(0);	// 0번 노드에서 dfs 시작
+
+	return 0;
+}
