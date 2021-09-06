@@ -1,69 +1,86 @@
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
 
-// Node구조체의 시작지점, 끝지점, 현재지점을 저장할 구조체
-typedef struct __list {
-	// 시작노드의 주소값을 저장 (데이터 접근을 위해)
-	struct __node* head;
-	// 마지막 노드의 주소값을 저장
-	struct __node* tail;
-} linkedList;
+using namespace std;
 
 // 데이터를 저장할 노드 구조체
-typedef struct __node {
+typedef struct Node {
 	int data;	// 저장할 데이터
-	struct __node* next;	// 다음 데이터의 위치를 가리킬 노드 포인터
-} node;
+	Node* next;	// 다음 데이터의 위치를 가리킬 노드 포인터
+};
+
+// Node구조체의 시작지점, 끝지점, 현재지점을 저장할 구조체
+typedef struct LinkedList {
+	// 시작노드의 주소값을 저장 (데이터 접근을 위해)
+	Node head;
+	// 마지막 노드의 주소값을 저장
+	Node tail;
+};
+
+LinkedList list;	// 링크드 리스트
+
+void initLinkedList()
+{
+	list.head.next = NULL;
+	list.tail.next = NULL;
+}
 
 // 링크드 리스트에 새로운 값 저장
-void createNode(linkedList* L, int tdata) {
+void createNodeToLast(int tdata) {
 	// 데이터를 저장할 노드 생성
-	node* newNode = (node*)malloc(sizeof(node));
+	Node* newNode = (Node*)malloc(sizeof(Node));
 	newNode->data = tdata;
 	newNode->next = NULL;
 
-	// 링크드 리스트의 head와 tail가 null일경우에는 데이터가 한개도 없는경우 이므로 
-	// 노드를 추가하고 head와 tail이 같은 노드를 바라보게 설정
-	if (L->head == NULL && L->tail == NULL)
-		L->head = L->tail = newNode;
-	else {
-		// 기존의 tail 다음(next)에 새로운 노드 데이터 추가
-		L->tail->next = newNode;
-		// tail이 새로 추가한 노드를 가리키도록 설정
-		L->tail = newNode;
+	if (list.head.next == NULL && list.tail.next == NULL)	// 노드가 하나도 없을 경우 
+	{
+		list.head.next = newNode;
+		list.tail.next = newNode;
+	}
+	else 
+	{
+		// 기존에 노드가 존재할 경우
+		Node* last = list.tail.next;	// 가장 마지막 노드 가져옴
+		last->next = newNode;	// 기존 마지막 노드의 다음에 newNode 추가
+		list.tail.next = newNode;	// tail이 새로 추가된 newNode를 바라보도록 수정
 	}
 }
 
-// 마지막 노드 삭제
-void deleteLastNode(linkedList* L) {
-	//head 노드부터 탐색
-	node* p = L->head;
+void deleteLastNode()
+{
+	Node* first = list.head.next;
+	Node* last = list.tail.next;
 
-	// 헤더 노드가 NULL 이면 아무 데이터도 없는 상태
-	if (p == NULL)
+	// 노드가 하나도 존재하지 않을경우
+	if (first == NULL)	
 		return;
 
-	// p -> next 노드가 null이면 데이터가 1개밖에 없는 상태
-	if (p->next == NULL) {
-		free(p);
-		L->head = NULL;
-		L->tail = NULL;
+	// 노드가 1개 존재 할 경우
+	if (first == last)
+	{
+		free(first);
+		list.head.next = NULL;
+		list.tail.next = NULL;
 		return;
 	}
-
-	// head 노드에서 마지막 노드 전까지 탐색(마지막 노드까지 접근하게 되면 이전 노드로 이동이 불가능함)
-	while (p->next->next != NULL) p = p->next;
-
-	node* last = p->next;
-	p->next = p->next->next;
-	L->tail = p;
-	free(last);
+	else 
+	{
+		// 노드가 여러개 존재 할 경우
+		/*
+			마지막 노드 전까지 이동하여
+			마지막 전전 노드가 마지막 노드가 되도록 null을 추가해야함
+		*/
+		Node* tempNode = first;
+		while (tempNode->next->next != NULL) tempNode = tempNode->next;
+		tempNode->next = NULL;
+		list.tail.next = tempNode;
+		free(last);
+	}
 }
 
 // 노드 출력
-void printNodes(linkedList* L) {
-	node* p = L->head;
+void printNodes() {
+	Node* p = list.head.next;
 	putchar('[');
 	while (p != NULL) {
 		printf("%d, ", p->data);
@@ -74,22 +91,20 @@ void printNodes(linkedList* L) {
 }
 
 int main(void) {
-	//linkedList pointer define start
-	linkedList* L = (linkedList*)malloc(sizeof(linkedList));
-	L->head = NULL;
-	L->tail = NULL;
-	
-	createNode(L, 1);
-	createNode(L, 2);
-	createNode(L, 3);
-	deleteLastNode(L);
-	createNode(L, 4);
-	createNode(L, 5);
-	createNode(L, 6);
-	deleteLastNode(L);
-	deleteLastNode(L);
-	createNode(L, 7);
-	printNodes(L);
+	initLinkedList();
+
+	createNodeToLast(1);
+	createNodeToLast(2);
+	createNodeToLast(3);
+	deleteLastNode();
+	createNodeToLast(4);
+	createNodeToLast(5);
+	createNodeToLast(6);
+	deleteLastNode();
+	deleteLastNode();
+	createNodeToLast(7);
+
+	printNodes();
 
 	return 0;
 }
