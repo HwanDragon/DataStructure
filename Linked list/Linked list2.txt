@@ -1,0 +1,209 @@
+
+#include <iostream>
+
+using namespace std;
+
+// 데이터를 저장할 노드 구조체
+typedef struct Node {
+	int data;	// 저장할 데이터
+	Node* next;	// 다음 데이터의 위치를 가리킬 노드 포인터
+};
+
+// Node구조체의 시작지점, 끝지점, 현재지점을 저장할 구조체
+typedef struct LinkedList {
+	// 시작노드의 주소값을 저장 (데이터 접근을 위해)
+	Node head;
+	// 마지막 노드의 주소값을 저장
+	Node tail;
+	// 저장한 노드 개수
+	int size;
+};
+
+LinkedList list;	// 링크드 리스트
+
+void initLinkedList()
+{
+	list.head.next = NULL;
+	list.tail.next = NULL;
+}
+
+// 링크드 리스트에 새로운 값 저장
+void createNodeToLast(int tdata) {
+	// 데이터를 저장할 노드 생성
+	Node* newNode = (Node*)malloc(sizeof(Node));
+	newNode->data = tdata;
+	newNode->next = NULL;
+
+	if (list.head.next == NULL && list.tail.next == NULL)	// 노드가 하나도 없을 경우 
+	{
+		list.head.next = newNode;
+		list.tail.next = newNode;
+	}
+	else
+	{
+		// 기존에 노드가 존재할 경우
+		Node* last = list.tail.next;	// 가장 마지막 노드 가져옴
+		last->next = newNode;	// 기존 마지막 노드의 다음에 newNode 추가
+		list.tail.next = newNode;	// tail이 새로 추가된 newNode를 바라보도록 수정
+	}
+	list.size++;
+}
+
+void deleteLastNode()
+{
+	Node* first = list.head.next;
+	Node* last = list.tail.next;
+
+	// 노드가 하나도 존재하지 않을경우
+	if (first == NULL)
+		return;
+
+	// 노드가 1개 존재 할 경우
+	if (first == last)
+	{
+		free(first);
+		list.head.next = NULL;
+		list.tail.next = NULL;
+		list.size--;
+		return;
+	}
+	else
+	{
+		// 노드가 여러개 존재 할 경우
+		/*
+			마지막 노드 전까지 이동하여
+			마지막 전전 노드가 마지막 노드가 되도록 null을 추가해야함
+		*/
+		Node* tempNode = first;
+		while (tempNode->next->next != NULL) tempNode = tempNode->next;
+		tempNode->next = NULL;
+		list.tail.next = tempNode;
+		free(last);
+		list.size--;
+	}
+}
+
+bool insertNode(int data, int n)
+{
+	// 삽입할 수 없음(범위 벗어남)
+	if (n < 0 || n > list.size)
+		return false;
+
+	Node* newNode = (Node *)malloc(sizeof(Node));
+	newNode->data = data;
+	newNode->next = NULL;
+	Node* first = list.head.next;
+	Node* last = list.tail.next;
+
+	if (n == 0)	// 가장 앞쪽에 삽입
+	{
+		newNode->next = first;
+		list.head.next = newNode;
+		list.size++;
+		return true;
+	}
+
+	if (n == list.size)	// 가장 마지막에 삽입
+	{
+		last->next = newNode;
+		list.tail.next = last;
+		list.size++;
+		return true;
+	}
+
+	if (n > 0 && n < list.size)	// 중간에 삽입
+	{
+		Node* tempNode = first;
+		for (int i = 0; i < n - 1; i++) tempNode = tempNode->next;
+		
+		newNode->next = tempNode->next;
+		tempNode->next = newNode;
+		list.size++;
+		return true;
+	}
+	return false;
+}
+
+bool deleteNode(int index)
+{
+	// 삭제할 수 없음
+	if (index < 0 || index > list.size)
+		return false;
+
+	Node* first = list.head.next;
+	Node* last = list.tail.next;
+
+	if (list.size == 1)	// 개수가 한개일 때
+	{
+		free(first->next);
+		list.head.next = NULL;
+		list.tail.next = NULL;
+		list.size--;
+		return true;
+	}
+
+	if (index == 0)	// 첫번째 노드 삭제
+	{
+		list.head.next = first->next;
+		free(first);
+		list.size--;
+		return true;
+	}
+
+	if (index == list.size)	// 마지막 노드 삭제
+	{
+		Node* tempNode = first;
+		while (tempNode->next->next != NULL) tempNode = tempNode->next;
+		
+		free(last);
+		tempNode->next = NULL;
+		list.size--;
+		return true;
+	}
+
+	if (index > 0 && index < list.size)	// 중간 노드 삭제
+	{
+		Node* tempNode = first;
+		for (int i = 0; i < index - 1; i++) tempNode = tempNode->next;
+
+		Node* deleteNode = tempNode->next;
+		tempNode->next = tempNode->next->next;
+		free(deleteNode);
+		list.size--;
+		return true;
+	}
+	return false;
+}
+
+// 노드 출력
+void printNodes() {
+	Node* p = list.head.next;
+	putchar('[');
+	while (p != NULL) {
+		printf("%d, ", p->data);
+		p = p->next;
+	}
+	putchar(']');
+	putchar('\n');
+}
+
+int main(void) {
+	initLinkedList();
+
+	createNodeToLast(1);
+	createNodeToLast(2);
+	createNodeToLast(3);
+	deleteLastNode();
+	createNodeToLast(4);
+	createNodeToLast(5);
+	createNodeToLast(6);
+	deleteLastNode();
+	deleteLastNode();
+	createNodeToLast(7);
+	insertNode(30, 2);
+	
+	deleteNode(5);
+
+	printNodes();
+	return 0;
+}
