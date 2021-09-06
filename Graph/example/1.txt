@@ -1,0 +1,72 @@
+#include <iostream>
+#define MAX_SIZE 10
+
+using namespace std;
+
+/*
+*	1이 섬, 0이 바다 라고할 떄
+	섬이 영역중 가장 큰 곳의 개수(크기)는?
+*/
+
+// 널문자 추가로 + 1함
+char map[MAX_SIZE][MAX_SIZE + 1] = {
+	"0111001001",
+	"0111001101",
+	"1111001111",
+	"0000000000",
+	"1111111100",
+	"0011100000",
+	"0000000000",
+	"0000000000",
+	"0011110000",
+	"0011111111",
+}; // 가장 큰 영역의 크기는 12
+
+bool visited[MAX_SIZE][MAX_SIZE] = { 0, };
+int result = 0;
+
+void dfs(int x, int y)
+{
+	visited[y][x] = true;
+	result++;
+	int dx[4] = { 0, 0, 1, -1 };
+	int dy[4] = { 1,-1, 0,  0 };
+	for (int i = 0; i < 4; i++)
+	{
+		int tempX = x + dx[i];
+		int tempY = y + dy[i];
+
+		// 배열 범위 벗어남
+		if (tempX < 0 || tempY < 0 || tempX >= MAX_SIZE || tempY >= MAX_SIZE)
+			continue;	
+
+		if (map[tempY][tempX] == '0')	// 바다 영역
+			continue;
+
+		if (visited[tempY][tempX] == true)	// 이미 방문한 지역
+			continue;
+
+		dfs(tempX, tempY);
+	}
+}
+
+int main()
+{
+	int maxResult = 0;
+	for (int y = 0; y < MAX_SIZE; y++)
+	{
+		for (int x = 0; x < MAX_SIZE; x++)
+		{
+			if (visited[y][x] == false && map[y][x] == '1')
+			{
+				result = 0;
+				dfs(x, y);
+				maxResult = max(result, maxResult);
+			}
+				
+		}
+	}
+
+	cout << result;
+	return 0;
+}
