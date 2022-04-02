@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <math.h>
+
+#define MAX_DEGREE  101 // 최대 100차 항까지 입력 
+
+/*
+선형리스트 배열을 이용한 다항식의 표현
+다항식을 표현하기 위해 
+a1 * x^(n1) + a2 * x^(n2) + .... 
+형태의 데이터를 여러개 저장 할 수 있어야함
+위의 식에서 필요한 항목은 x앞의 계수(coefficient)와 지수(exponential)를 저장 할 수 있어야 함
+따라서 사용자 데이터를 표현할 수 있는 구조체를 이용하여 다항식의 계수와 지수를 선언하고,
+이를 배열로 n개 선언하면 n-1차항 까지 저장 할 수 있음
+이렇게 선언한 다항식으로 덧셈등의 연산 가능
+*/
+
+// 다항식의 계수와 차수를 저장하는 구조체
+typedef struct polynomial
+{
+    float coef; // 계수(coefficient)
+    int expo;   // 지수 차수(exponential)
+} polynomial;
+
+int i;
+int deg1, deg2;      // 다항식의 최고차수를 저장
+int k = 0, l = 0, m = 0;
+
+// 세 다항식의 선언
+polynomial p1[MAX_DEGREE], p2[MAX_DEGREE], result[MAX_DEGREE];
+
+void input()
+{
+    printf("다항식1의 최고차수를 입력하라 :");
+    scanf("%d", &deg1);
+
+    // 사용자로부터 x^0...x^n 항의 계수를 입력받는다
+    for (i = 0;i <= deg1;i++)
+    {
+        // x^i 항의 계수값을 입력하시오
+        printf("x^%d 의 계수를 입력하시오 :", i);
+        scanf("%f", &p1[i].coef);
+        // 다항식의 차수값을 저장
+        p1[k++].expo = i;
+    }
+
+    // 두번째 다항식을 입력받는다
+    printf("\n다항식2의 최고차수를 입력하라 :");
+    scanf("%d", &deg2);
+
+    for (i = 0;i <= deg2;i++)
+    {
+        printf("x^%d 의 계수를 입력하시오 :", i);
+        scanf("%f", &p2[i].coef);
+        p2[l++].expo = i;
+    }
+}
+
+void printPolynomial(polynomial *p, int maxDeg)
+{
+    for (i = 1;i <= maxDeg;i++)
+        printf("+ %.1fx^%d", p[i].coef, p[i].expo);
+}
+
+int main()
+{
+    // 다항식 입력 받음
+    input();
+
+    // 첫번째 다항식을 출력함
+    printf("\n다항식 1 = %.1f", p1[0].coef);
+    printPolynomial(p1, deg1);
+
+    // 두번째 다항식을 출력
+    printf("\n다항식 2 = %.1f", p2[0].coef);
+    printPolynomial(p2, deg2);
+
+    // 두 다항식의 합을 계산
+    if (deg1 > deg2)    // 첫 다항식의 최고차항의 차수가 클 경우
+    {
+        for (i = 0;i <= deg2;i++) // 0차 항부터-두번째 항의 최고차항까지 계수를 더함
+        {
+            result[m].coef = p1[i].coef + p2[i].coef;
+            result[m].expo = p1[i].expo;
+            m++;
+        }
+        for (i = deg2 + 1;i <= deg1;i++)  // 첫번째 항의 최고차 항까지 복사
+        {
+            result[m].coef = p1[i].coef;
+            result[m].expo = p1[i].expo;
+            m++;
+        }
+    }
+    else // 두번째 다항식의 최고차항이 더 크거나 같을 경우
+    {
+        for (i = 0;i <= deg1;i++)
+        {
+            result[m].coef = p1[i].coef + p2[i].coef;
+            result[m].expo = p1[i].expo;
+            m++;
+        }
+        for (i = deg1 + 1;i <= deg2;i++)
+        {
+            result[m].coef = p2[i].coef;
+            result[m].expo = p2[i].expo;
+            m++;
+        }
+    }
+
+    // 두 다항식의 합을 출력
+    printf("\n수식 합  = %.1f", result[0].coef);
+    printPolynomial(result, m - 1);
+    printf("\n");
+
+    return 0;
+}
